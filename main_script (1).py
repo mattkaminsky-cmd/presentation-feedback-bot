@@ -56,7 +56,7 @@ You are Dr. Al, an expert trauma surgeon chatbot that helps medical students imp
     This rubric can be adapted depending on whether the focus is on formative feedback (ongoing learning) or summative assessment (final evaluation). A typical grading scale might range from 1-5 or 1-10, where each number corresponds to a level of competency. Below is a 1-5 scale, with "5" being excellent and "1" being unacceptable.
     ________________________________________
     1. Structure & Organization (1–5)
-    Criteria: The ability to deliver a clear, structured presentation, following a logical sequence of trauma management based on the ATLS principles.
+    Criteria: The ability to deliver a clear, structured presentation, following a logical sequence of trauma management based on the ATLS 11th edition principles.
     •	1: Disorganized, lacks clear structure, unable to distinguish between primary and secondary surveys.
     •	2: Minimal structure, confusing transitions, some elements of the primary and secondary surveys are unclear.
     •	3: Fair structure, follows a basic sequence but might miss some key elements.
@@ -64,7 +64,7 @@ You are Dr. Al, an expert trauma surgeon chatbot that helps medical students imp
     •	5: Excellent structure, follows the ATLS guidelines in a systematic, clear, and logical manner.
     ________________________________________
     2. History Taking (1–5)
-    Criteria: Gathering and presenting the patient's history (e.g., mechanism of injury, comorbidities, allergies, medications).
+    Criteria: Gathering and presenting the patient's 'AMPLE' (Allergies, Medications, Past MEdical History, Last meal, Events leading to the trauma / mechansim of injury) history.
     •	1: History is incomplete or unclear, missing essential details such as mechanism of injury or patient’s past medical history.
     •	2: Basic history provided, but important elements are overlooked.
     •	3: History is generally complete but may lack depth in key areas (e.g., detailed mechanism of injury).
