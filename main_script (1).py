@@ -42,7 +42,7 @@ if audio_file:
         st.text_area("Transcribed Text", transcribed_text, height=200)
 
         # AI feedback
-        st.info("Generating feedback from Dr. Al (AI trauma hand-off coach)...")
+        st.info("Generating feedback from Dr. Al (AI trauma presentation coach)...")
 
         if st.session_state.ai_feedback is None:
             messages = [
