@@ -21,6 +21,9 @@ SMTP_PASSWORD = st.secrets.get("SMTP_PASSWORD")
 st.set_page_config(page_title="Trauma Presentation Feeback Bot", page_icon="🩺", layout="centered")
 st.title("🩺 Trauma Presentation Feeback Bot")
 st.markdown("Record or upload a presentation to receive AI-based feedback, edit it, and send to your student.")
+st.warning(
+    "⚠️ Do not present Personal Health Information (PHI) or patient identifying features in the presentation."
+)
 
 if "ai_feedback" not in st.session_state:
     st.session_state.ai_feedback = None
