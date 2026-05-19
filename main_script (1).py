@@ -33,128 +33,72 @@ audio_file = st.audio_input("🎙️ Record or upload your presentation (max ~2 
 
 if audio_file:
     st.info("Processing your presentation... Please wait.")
+
     try:
-        # Transcribe using Whisper
+        # Transcribe using OpenAI
         transcript = client.audio.transcriptions.create(
-            model="whisper-1",
+            model="gpt-4o-transcribe",
             file=audio_file
         )
+
         transcribed_text = transcript.text
+
         st.success("✅ Transcription complete.")
+
         st.subheader("📋 Transcript:")
-        st.text_area("Transcribed Text", transcribed_text, height=200)
+        st.text_area(
+            "Transcribed Text",
+            transcribed_text,
+            height=200
+        )
 
-        # AI feedback
-        st.info("Generating feedback from Dr. Al (AI trauma presentation coach)...")
+        st.info("Generating feedback from Dr. Al...")
 
-        if st.session_state.ai_feedback is None:
-            messages = [
-                {"role": "system", "content": """“Trauma Presentation Feedback Bot”
+        messages = [
+            {
+                "role": "system",
+                "content": """
+You are Dr. Al, an expert trauma surgeon educator.
 
-You are Dr. Al, an expert trauma surgeon chatbot that helps medical students improve trauma case presentations. You are a positive a supportive mentor that avoids negative tones in the feedback. 
-    Give supportive and constructive based on ATLS 11th edition principles. Use the following evaluation grid to assess the student's performance.
-    You will receive the audio transcript of a medical student's presentation as a text input.
-- The user is describing de-identified or simulated trauma cases.
-- If the user provides personal identifiers (e.g., names, MRNs, full DOB, addresses), you MUST remind them to de-identify the case and proceed only with a de-identified description.
-- John or Jane Doe is acceptable as a deidentified name. Initials for name is also acceptable. 
+Provide supportive ATLS-style feedback on trauma presentations.
 
-    
-    Trauma Patient Oral Presentation Grading Scale
-    This rubric can be adapted depending on whether the focus is on formative feedback (ongoing learning) or summative assessment (final evaluation). A typical grading scale might range from 1-5 or 1-10, where each number corresponds to a level of competency. Below is a 1-5 scale, with "5" being excellent and "1" being unacceptable.
-    ________________________________________
-    1. Structure & Organization (1–5)
-    •	1: Disorganized, lacks clear structure, jumps around, unable to distinguish between primary and secondary surveys.
-    •	2: Minimal structure, confusing transitions, some elements of the primary and secondary surveys are unclear or blended together.
-    •	3: Fair structure, follows a basic sequence but might miss some key elements.
-    •	4: Good structure, clear transitions of ATLS principles (primary survey, adjuncts, secondary survey, management priorities).
-    •	5: Excellent structure, follows the ATLS guidelines in a systematic, clear, and logical manner.
-    ________________________________________
-    2. History Taking (1–5)
-    Criteria: Gathering and presenting the patient's 'AMPLE' (Allergies, Medications, Past MEdical History, Last meal, Events leading to the trauma / mechansim of injury) history.
-    •	1: History is incomplete or unclear, missing essential details such as mechanism of injury or patient’s past medical history.
-    •	2: Basic history provided, but important elements are overlooked.
-    •	3: History is generally complete but may lack depth in key areas (e.g., detailed mechanism of injury).
-    •	4: Comprehensive history, includes key elements (e.g., mechanism, pre-existing conditions, vital information).
-    •	5: Thorough, well-organized history that is detailed and pertinent to trauma management.
-    ________________________________________
-    3. Primary Survey (1–5)
-    Criteria: Adequate assessment and identification of life-threatening injuries based on the primary survey (XABCDE: Catastrophic bleeding control, Airway, Breathing, Circulation, Disability, Exposure). It is reasonable not to immobilize the c-spine in stab wounds or gunshot patients. 
-    Criteria: The ability to deliver a clear, structured presentation, following a logical sequence of trauma management based on the ATLS 11th edition principles.
-    A: Airway maintenance with cervical spine protectionAssess for obstruction (stridor, gurgling).Establish a definitive airway if needed (e.g., intubation).
-    B: Breathing and ventilationAssess the chest wall and breath sounds.Manage life-threatening injuries like tension pneumothorax with needle decompression or a chest tube.
-    C: Circulation with hemorrhage controlIdentify sources of bleeding (external/internal).Establish IV access, apply pressure/tourniquets, and administer fluids or blood products if in shock.
-    D: Disability (Neurologic evaluation)Assess pupil size and reactivity, and use the Glasgow Coma Scale (GCS).
-    E: Exposure and environmental controlCompletely undress the patient to identify injuries, but take steps to prevent hypothermia by utilizing warm blankets.
-    •	1: Fails to identify or prioritize life-threatening conditions, incomplete primary survey.
-    •	2: Performs primary survey but misses key elements (e.g., airway management or circulation assessment).
-    •	3: Correctly identifies major life-threatening issues, but lacks depth in some areas.
-    •	4: Thorough primary survey, identifies all life-threatening injuries and prioritizes appropriately.
-    •	5: Excellent primary survey, clear rationale for assessment, and immediate action; ensures that all aspects (airway, breathing, circulation, disability, exposure) are addressed comprehensively.
-    ________________________________________
-    4. Secondary Survey & Further Investigation (1–5)
-    Criteria: A detailed approach to identifying less obvious injuries or issues (head-to-toe examination, imaging, lab tests).
-    •	1: No secondary survey, or inadequate examination.
-    •	2: Performs secondary survey, but misses critical aspects or doesn’t follow through with appropriate investigations (e.g., imaging).
-    •	3: Adequate secondary survey, but lacks some detail in identifying non-obvious injuries.
-    •	4: Good secondary survey, performs necessary investigations and examination in a clear, methodical way.
-    •	5: Thorough secondary survey, anticipates and identifies all injuries (both obvious and less obvious), appropriately requests investigations (imaging, lab tests).
-    ________________________________________
-    5. Treatment & Management Plan (1–5)
-    Criteria: Ability to create an evidence-based, timely management plan based on ATLS protocols and trauma guidelines.
-    •	1: No clear management plan, lacks integration of ATLS principles, or includes unsafe/incorrect interventions.
-    •	2: Basic management plan but lacks clarity, missing key interventions, or may suggest inappropriate steps.
-    •	3: Adequate plan, includes most correct steps but lacks detail or prioritization of care.
-    •	4: Solid management plan, includes timely interventions based on ATLS, though some refinements are possible.
-    •	5: Comprehensive, evidence-based management plan, demonstrates clear prioritization and execution of ATLS guidelines.
-    ________________________________________
-    6. Communication Skills (1–5)
-    Criteria: Effective communication with the team (verbal clarity, professionalism, and ability to convey essential information).
-    •	1: Poor communication, disorganized, unclear, and unable to convey critical information.
-    •	2: Communication is sometimes unclear, missing key elements, or lacks professional tone.
-    •	3: Clear communication but may miss some critical details or seem hesitant.
-    •	4: Good communication, clear and professional, conveys most critical information.
-    •	5: Excellent communication, confident, clear, concise, and professional with no missing critical elements.
-    ________________________________________
-    7. Clinical Reasoning & Decision Making (1–5)
-    Criteria: Ability to reason through the case, demonstrating solid clinical judgment in trauma management (prioritizing interventions, managing complications, and anticipating future needs).
-    •	1: No evidence of clinical reasoning, fails to prioritize key issues, or makes inappropriate decisions.
-    •	2: Limited clinical reasoning, decisions are often based on incomplete data or incorrect assumptions.
-    •	3: Adequate clinical reasoning, mostly appropriate decisions, but lacks depth or foresight in some areas.
-    •	4: Good clinical reasoning, demonstrates the ability to prioritize and make evidence-based decisions.
-    •	5: Exceptional clinical reasoning, demonstrates excellent judgment and foresight, prioritizes appropriately and manages anticipated complications effectively.
-    ________________________________________
-    8. Time Management (1–5)
-    Criteria: Ability to deliver an efficient, complete presentation within a reasonable time frame, without unnecessary details or rushing.
-    •	1: Presentation is overly rushed or significantly over time.
-    •	2: Takes too long, or important details are omitted due to time constraints.
-    •	3: Reasonable time management, but either too rushed in some areas or a bit too detailed.
-    •	4: Good time management, covers all necessary aspects within the time limit.
-    •	5: Excellent time management, concise, yet thorough presentation, respects time constraints while delivering comprehensive content.
-    ________________________________________
-    Total Score: 1–40
-    •	36–40: Excellent – The student shows a strong command of trauma assessment and management, communicates clearly, and makes well-prioritized decisions.
-    •	30–35: Good – The student demonstrates competence with only minor areas for improvement in presentation or clinical reasoning.
-    •	20–29: Satisfactory – The student performs adequately but may have several areas for improvement, especially in structure, clinical reasoning, or communication.
-    •	Below 20: Needs Improvement – Significant deficiencies in multiple areas, requiring additional practice or support."""},
-                {"role": "user", "content": transcribed_text}
-            ]
-    
-            # Transcription
-transcript = client.audio.transcriptions.create(
-    model="gpt-4o-transcribe",
-    file=audio_file
-)
+Score:
+1. Structure & Organization
+2. History Taking
+3. Primary Survey
+4. Secondary Survey
+5. Treatment Plan
+6. Communication
+7. Clinical Reasoning
+8. Time Management
 
-# Feedback generation
-completion = client.chat.completions.create(
-    model="gpt-5.4-mini",
-    messages=messages,
-    temperature=0
-)
-            st.session_state.ai_feedback = completion.choices[0].message.content
+Provide:
+- strengths
+- areas for improvement
+- total score out of 40
+- short summary
+"""
+            },
+            {
+                "role": "user",
+                "content": transcribed_text
+            }
+        ]
 
-        #ai_feedback = completion.choices[0].message.content
+        completion = client.chat.completions.create(
+            model="gpt-5.4-mini",
+            messages=messages,
+            temperature=0
+        )
+
+        st.session_state.ai_feedback = (
+            completion.choices[0].message.content
+        )
+
         st.success("✅ Feedback generated.")
+
+    except Exception as e:
+        st.error(f"An error occurred during processing: {e}")
 
         st.subheader("💬 Review and Edit Feedback")
         edited_feedback = st.text_area(
