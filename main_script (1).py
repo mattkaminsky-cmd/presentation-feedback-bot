@@ -33,165 +33,122 @@ audio_file = st.audio_input("🎙️ Record or upload your presentation (max ~2 
 
 if audio_file:
     st.info("Processing your presentation... Please wait.")
-
     try:
-        # Transcribe using OpenAI
+        # Transcribe using Whisper
         transcript = client.audio.transcriptions.create(
-            model="gpt-4o-transcribe",
+            model="whisper-1",
             file=audio_file
         )
-
         transcribed_text = transcript.text
-
         st.success("✅ Transcription complete.")
-
         st.subheader("📋 Transcript:")
-        st.text_area(
-            "Transcribed Text",
-            transcribed_text,
-            height=200
-        )
+        st.text_area("Transcribed Text", transcribed_text, height=200)
 
-        st.info("Generating feedback from Dr. Al...")
+        # AI feedback
+        st.info("Generating feedback from Dr. Al (AI trauma presentation coach)...")
 
-        messages = [
-            {
-                "role": "system",
-                "content": """
-You are Dr. Al, an expert trauma surgeon educator.
+        if st.session_state.ai_feedback is None:
+            messages = [
+                {"role": "system", "content": """“Trauma Presentation Feedback Bot”
 
-Provide supportive ATLS-style feedback on trauma presentations.
+You are Dr. Al, an expert trauma surgeon chatbot that helps medical students improve trauma case presentations. You are a positive a supportive mentor that avoids negative tones in the feedback. 
+    Give supportive and constructive based on ATLS 11th edition principles. Use the following evaluation grid to assess the student's performance.
+    You will receive the audio transcript of a medical student's presentation as a text input.
+- The user is describing de-identified or simulated trauma cases.
+- If the user provides personal identifiers (e.g., names, MRNs, full DOB, addresses), you MUST remind them to de-identify the case and proceed only with a de-identified description.
+- John or Jane Doe is acceptable as a deidentified name. Initials for name is also acceptable. 
 
-Score:
-1. Structure & Organization
-2. History Taking
-3. Primary Survey
-4. Secondary Survey
-5. Treatment Plan
-6. Communication
-7. Clinical Reasoning
-8. Time Management
+    
+    Trauma Patient Oral Presentation Grading Scale
+    This rubric can be adapted depending on whether the focus is on formative feedback (ongoing learning) or summative assessment (final evaluation). A typical grading scale might range from 1-5 or 1-10, where each number corresponds to a level of competency. Below is a 1-5 scale, with "5" being excellent and "1" being unacceptable.
+    ________________________________________
+    1. Structure & Organization (1–5)
+    •	1: Disorganized, lacks clear structure, jumps around, unable to distinguish between primary and secondary surveys.
+    •	2: Minimal structure, confusing transitions, some elements of the primary and secondary surveys are unclear or blended together.
+    •	3: Fair structure, follows a basic sequence but might miss some key elements.
+    •	4: Good structure, clear transitions of ATLS principles (primary survey, adjuncts, secondary survey, management priorities).
+    •	5: Excellent structure, follows the ATLS guidelines in a systematic, clear, and logical manner.
+    ________________________________________
+    2. History Taking (1–5)
+    Criteria: Gathering and presenting the patient's 'AMPLE' (Allergies, Medications, Past MEdical History, Last meal, Events leading to the trauma / mechansim of injury) history.
+    •	1: History is incomplete or unclear, missing essential details such as mechanism of injury or patient’s past medical history.
+    •	2: Basic history provided, but important elements are overlooked.
+    •	3: History is generally complete but may lack depth in key areas (e.g., detailed mechanism of injury).
+    •	4: Comprehensive history, includes key elements (e.g., mechanism, pre-existing conditions, vital information).
+    •	5: Thorough, well-organized history that is detailed and pertinent to trauma management.
+    ________________________________________
+    3. Primary Survey (1–5)
+    Criteria: Adequate assessment and identification of life-threatening injuries based on the primary survey (XABCDE: Catastrophic bleeding control, Airway, Breathing, Circulation, Disability, Exposure). It is reasonable not to immobilize the c-spine in stab wounds or gunshot patients. 
+    Criteria: The ability to deliver a clear, structured presentation, following a logical sequence of trauma management based on the ATLS 11th edition principles.
+    A: Airway maintenance with cervical spine protectionAssess for obstruction (stridor, gurgling).Establish a definitive airway if needed (e.g., intubation).
+    B: Breathing and ventilationAssess the chest wall and breath sounds.Manage life-threatening injuries like tension pneumothorax with needle decompression or a chest tube.
+    C: Circulation with hemorrhage controlIdentify sources of bleeding (external/internal).Establish IV access, apply pressure/tourniquets, and administer fluids or blood products if in shock.
+    D: Disability (Neurologic evaluation)Assess pupil size and reactivity, and use the Glasgow Coma Scale (GCS).
+    E: Exposure and environmental controlCompletely undress the patient to identify injuries, but take steps to prevent hypothermia by utilizing warm blankets.
+    •	1: Fails to identify or prioritize life-threatening conditions, incomplete primary survey.
+    •	2: Performs primary survey but misses key elements (e.g., airway management or circulation assessment).
+    •	3: Correctly identifies major life-threatening issues, but lacks depth in some areas.
+    •	4: Thorough primary survey, identifies all life-threatening injuries and prioritizes appropriately.
+    •	5: Excellent primary survey, clear rationale for assessment, and immediate action; ensures that all aspects (airway, breathing, circulation, disability, exposure) are addressed comprehensively.
+    ________________________________________
+    4. Secondary Survey & Further Investigation (1–5)
+    Criteria: A detailed approach to identifying less obvious injuries or issues (head-to-toe examination, imaging, lab tests).
+    •	1: No secondary survey, or inadequate examination.
+    •	2: Performs secondary survey, but misses critical aspects or doesn’t follow through with appropriate investigations (e.g., imaging).
+    •	3: Adequate secondary survey, but lacks some detail in identifying non-obvious injuries.
+    •	4: Good secondary survey, performs necessary investigations and examination in a clear, methodical way.
+    •	5: Thorough secondary survey, anticipates and identifies all injuries (both obvious and less obvious), appropriately requests investigations (imaging, lab tests).
+    ________________________________________
+    5. Treatment & Management Plan (1–5)
+    Criteria: Ability to create an evidence-based, timely management plan based on ATLS protocols and trauma guidelines.
+    •	1: No clear management plan, lacks integration of ATLS principles, or includes unsafe/incorrect interventions.
+    •	2: Basic management plan but lacks clarity, missing key interventions, or may suggest inappropriate steps.
+    •	3: Adequate plan, includes most correct steps but lacks detail or prioritization of care.
+    •	4: Solid management plan, includes timely interventions based on ATLS, though some refinements are possible.
+    •	5: Comprehensive, evidence-based management plan, demonstrates clear prioritization and execution of ATLS guidelines.
+    ________________________________________
+    6. Communication Skills (1–5)
+    Criteria: Effective communication with the team (verbal clarity, professionalism, and ability to convey essential information).
+    •	1: Poor communication, disorganized, unclear, and unable to convey critical information.
+    •	2: Communication is sometimes unclear, missing key elements, or lacks professional tone.
+    •	3: Clear communication but may miss some critical details or seem hesitant.
+    •	4: Good communication, clear and professional, conveys most critical information.
+    •	5: Excellent communication, confident, clear, concise, and professional with no missing critical elements.
+    ________________________________________
+    7. Clinical Reasoning & Decision Making (1–5)
+    Criteria: Ability to reason through the case, demonstrating solid clinical judgment in trauma management (prioritizing interventions, managing complications, and anticipating future needs).
+    •	1: No evidence of clinical reasoning, fails to prioritize key issues, or makes inappropriate decisions.
+    •	2: Limited clinical reasoning, decisions are often based on incomplete data or incorrect assumptions.
+    •	3: Adequate clinical reasoning, mostly appropriate decisions, but lacks depth or foresight in some areas.
+    •	4: Good clinical reasoning, demonstrates the ability to prioritize and make evidence-based decisions.
+    •	5: Exceptional clinical reasoning, demonstrates excellent judgment and foresight, prioritizes appropriately and manages anticipated complications effectively.
+    ________________________________________
+    8. Time Management (1–5)
+    Criteria: Ability to deliver an efficient, complete presentation within a reasonable time frame, without unnecessary details or rushing.
+    •	1: Presentation is overly rushed or significantly over time.
+    •	2: Takes too long, or important details are omitted due to time constraints.
+    •	3: Reasonable time management, but either too rushed in some areas or a bit too detailed.
+    •	4: Good time management, covers all necessary aspects within the time limit.
+    •	5: Excellent time management, concise, yet thorough presentation, respects time constraints while delivering comprehensive content.
+    ________________________________________
+    Total Score: 1–40
+    •	36–40: Excellent – The student shows a strong command of trauma assessment and management, communicates clearly, and makes well-prioritized decisions.
+    •	30–35: Good – The student demonstrates competence with only minor areas for improvement in presentation or clinical reasoning.
+    •	20–29: Satisfactory – The student performs adequately but may have several areas for improvement, especially in structure, clinical reasoning, or communication.
+    •	Below 20: Needs Improvement – Significant deficiencies in multiple areas, requiring additional practice or support."""},
+                {"role": "user", "content": transcribed_text}
+            ]
+    
+            completion = client.chat.completions.create(
+                model="gpt-4o",
+                messages=messages,
+                temperature=0,
+                seed=365
+            )
+            st.session_state.ai_feedback = completion.choices[0].message.content
 
-Provide:
-- strengths
-- areas for improvement
-- total score out of 40
-- short summary
-"""
-            },
-            {
-                "role": "user",
-                "content": transcribed_text
-            }
-        ]
-
-        completion = client.chat.completions.create(
-            model="gpt-5.4-mini",
-            messages=messages,
-            temperature=0
-        )
-
-        import os
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-
-import openai
-import streamlit as st
-from openai import OpenAI
-
-# Load environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
-
-# Email configuration (use environment variables for safety)
-SMTP_SERVER = st.secrets.get("SMTP_SERVER")
-SMTP_PORT = st.secrets.get("SMTP_PORT")
-SMTP_USERNAME = st.secrets.get("SMTP_USERNAME")
-SMTP_PASSWORD = st.secrets.get("SMTP_PASSWORD")
-
-# Streamlit UI setup
-st.set_page_config(page_title="Trauma Presentation Feeback Bot", page_icon="🩺", layout="centered")
-st.title("🩺 Trauma Presentation Feeback Bot")
-st.markdown("Record or upload a presentation to receive AI-based feedback, edit it, and send to your student.")
-st.warning(
-    "⚠️ Do not present Personal Health Information (PHI) or patient identifying features in the presentation."
-)
-
-if "ai_feedback" not in st.session_state:
-    st.session_state.ai_feedback = None
-
-# Audio input
-audio_file = st.audio_input("🎙️ Record or upload your presentation (max ~2 min recommended):")
-
-if audio_file:
-    st.info("Processing your presentation... Please wait.")
-
-    try:
-        # Transcribe using OpenAI
-        transcript = client.audio.transcriptions.create(
-            model="gpt-4o-transcribe",
-            file=audio_file
-        )
-
-        transcribed_text = transcript.text
-
-        st.success("✅ Transcription complete.")
-
-        st.subheader("📋 Transcript:")
-        st.text_area(
-            "Transcribed Text",
-            transcribed_text,
-            height=200
-        )
-
-        st.info("Generating feedback from Dr. Al...")
-
-        messages = [
-            {
-                "role": "system",
-                "content": """
-You are Dr. Al, an expert trauma surgeon educator.
-
-Provide supportive ATLS-style feedback on trauma presentations.
-
-Score:
-1. Structure & Organization
-2. History Taking
-3. Primary Survey
-4. Secondary Survey
-5. Treatment Plan
-6. Communication
-7. Clinical Reasoning
-8. Time Management
-
-Provide:
-- strengths
-- areas for improvement
-- total score out of 40
-- short summary
-"""
-            },
-            {
-                "role": "user",
-                "content": transcribed_text
-            }
-        ]
-
-        completion = client.chat.completions.create(
-            model="gpt-5.4-mini",
-            messages=messages,
-            temperature=0
-        )
-
-        st.session_state.ai_feedback = (
-            completion.choices[0].message.content
-        )
-
+        #ai_feedback = completion.choices[0].message.content
         st.success("✅ Feedback generated.")
-
-    except Exception as e:
-        st.error(f"An error occurred during processing: {e}")
 
         st.subheader("💬 Review and Edit Feedback")
         edited_feedback = st.text_area(
@@ -201,69 +158,6 @@ Provide:
             key="feedback_area"
         )
         st.session_state.edited_feedback = edited_feedback  
-        
-        # Email section
-        st.subheader("✉️ Send Feedback to Student")
-        col1, col2 = st.columns(2)
-        with col1:
-            student_email = st.text_input("Student Email(s) (comma separated)")
-            cc_emails = st.text_input("CC Email(s) (optional, comma separated)")
-        with col2:
-            faculty_name = st.text_input("Faculty Name (optional)")
-            student_name = st.text_input("Student Name (optional)")
-
-        email_subject = st.text_input("Email Subject", "Trauma Hand-Off Presentation Feedback")
-        send_email = st.button("📤 Send Feedback via Email")
-
-        if send_email:
-            if not student_email:
-                st.warning("Please enter the student's email address.")
-            elif not SMTP_USER or not SMTP_PASSWORD:
-                st.error("Email sending is not configured. Please set SMTP_USER and SMTP_PASSWORD in your .env file.")
-            else:
-                try:
-                    # Split and clean addresses
-                    to_addresses = [email.strip() for email in student_email.split(",") if email.strip()]
-                    cc_addresses = [email.strip() for email in cc_emails.split(",") if email.strip()]
-                    all_recipients = to_addresses + cc_addresses
-        
-                    # Compose email
-                    msg = MIMEMultipart()
-                    msg["From"] = SMTP_USER
-                    msg["To"] = ", ".join(to_addresses)
-                    msg["Cc"] = ", ".join(cc_addresses)
-                    msg["Subject"] = email_subject
-
-                    if student_name:
-                        body = f"Dear {student_name},\n\nHere is your Trauma Hand-Off Presentation and feedback:\n\n"
-                    else:
-                        body = f"Dear Student,\n\nHere is your Trauma Hand-Off Presentation feedback:\n\n"
-
-                    body += f"--- Student Presentation Transcript ---\n{transcribed_text}\n\n"
-                    body += f"--- Feedback ---\n{st.session_state.edited_feedback}\n\n"
-                    
-                    if faculty_name:
-                        body += f"Best regards,\n{faculty_name}"
-                    else:
-                        body += "Best regards,\nTrauma Faculty"
-        
-                    msg.attach(MIMEText(body, "plain"))
-        
-                    # Send email
-                    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-                        server.starttls()
-                        server.login(SMTP_USER, SMTP_PASSWORD)
-                        server.send_message(msg, from_addr=SMTP_USER, to_addrs=all_recipients)
-        
-                    st.success(f"✅ Feedback successfully sent to: {', '.join(all_recipients)}!")
-        
-                except Exception as e:
-                    st.error(f"An error occurred while sending the email: {e}")
-
-    except Exception as e:
-        st.error(f"An error occurred during processing: {e}")
-else:
-    st.info("👆 Please record or upload your trauma hand-off presentation to begin.") 
         
         # Email section
         st.subheader("✉️ Send Feedback to Student")
