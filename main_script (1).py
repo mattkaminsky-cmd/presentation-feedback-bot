@@ -139,11 +139,18 @@ You are Dr. Al, an expert trauma surgeon chatbot that helps medical students imp
                 {"role": "user", "content": transcribed_text}
             ]
     
-            completion = client.chat.completions.create(
-                model="gpt-4o",
-                messages=messages,
-                temperature=0,
-                seed=365
+            # Transcription
+transcript = client.audio.transcriptions.create(
+    model="gpt-4o-transcribe",
+    file=audio_file
+)
+
+# Feedback generation
+completion = client.chat.completions.create(
+    model="gpt-5.4-mini",
+    messages=messages,
+    temperature=0
+)
             )
             st.session_state.ai_feedback = completion.choices[0].message.content
 
