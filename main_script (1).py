@@ -151,7 +151,6 @@ completion = client.chat.completions.create(
     messages=messages,
     temperature=0
 )
-            )
             st.session_state.ai_feedback = completion.choices[0].message.content
 
         #ai_feedback = completion.choices[0].message.content
